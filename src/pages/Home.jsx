@@ -1,10 +1,11 @@
-import img from "../assets/test.png"
 import useCards from "../hooks/useCards"
 import getCardSorts from "../services/getCardsSorts"
 import Alert from "../alert/Alert"
+import Results from "../components/results/Results"
+import Deck from "../components/decks/Deck"
+import Loading from "../components/loading/Loading"
+import Error from "../components/error/Error"
 import { useState, useEffect } from "react"
-import Card from "../components/Card"
-import styled from "styled-components"
 
 function Home() {
 
@@ -16,132 +17,88 @@ function Home() {
 
     const { cards, loading, error, reloadCards } = useCards()
 
+    useEffect(() => {
+        setSorts(getCardSorts(cardsState))
+    }, [cardsState])
 
     useEffect(() => {
-        alert.length &&
+        queens.length === 4 &&
             Alert.fire({
-                icon: 'error',
-                title: alert
+                title: 'You win!',
+                icon: 'success',
+                text: 'You found all the queens, you are a true master of the game.'
             })
-        return () => setAlert("")
-    }, [alert])
+        alert === "success" &&
+            Alert.fire({
+                title: 'Great job!',
+                icon: 'success',
+                text: `You found a queen, you still need to get ${4 - queens.length} more queens.`
+            })
+        alert === "restart" &&
+            Alert.fire({
+                title: 'Restart',
+                icon: 'info',
+                text: 'You restarted the game, you can find all the queens again.'
+            })
+        alert === "error" &&
+            Alert.fire({
+                title: 'Oops!',
+                icon: 'error',
+                text: 'You can only click once per second, sorry :(.'
+            })
 
-    if (loading) {
-        return <p>Loading...</p>
-    }
-    if (error) {
-        return <p>Error: {error.message}</p>
-    }
+        return () => setAlert("")
+    }, [alert, queens])
+
 
     const handleClick = () => {
-        if(!debounce){
-            return setAlert("You can only click once per second")
+        if (!debounce) {
+            return setAlert("error")
         }
-        const cardToPop = cards.pop()
+        const copyState = cards
+        const cardToPop = copyState.pop()
         if (cardToPop.value === "QUEEN") {
             setQueens(prevQueens => [...prevQueens, cardToPop])
+            setAlert("success")
         }
-
         setCardsState(prevCards => [...prevCards, cardToPop])
-        setSorts(getCardSorts(cardsState))
-        // setDebounce(false)
-        // setTimeout(() => setDebounce(true), 1000)
+        setDebounce(false)
+        setTimeout(() => setDebounce(true), 1000)
     }
 
+
     const handleReload = () => {
+        setAlert("restart")
         setCardsState([])
         setQueens([])
         reloadCards()
     }
 
+    if (loading) {
+        return <Loading />
+    }
+    if (error) {
+        return <Error message={error.message} handleReload={handleReload}/>
+    }
+
     return (
         <>
             {
-                queens.length === 4 ? <>
-                    <h1>You have found all the queens!</h1>
-                    <button onClick={handleReload}>Reload</button>
-
-                    <h2>Your results:</h2>
-                    <Container2>
-                        <Container> {sorts[0].suit} 
-                        {
-                            sorts[0].cards.map((result, index) => (
-                                <Card key={index} image={result.image} />
-                            ))
-                        }
-                        </Container>
-                        <Container> {sorts[1].suit} 
-                        {
-                            sorts[1].cards.map((result, index) => (
-                                <Card key={index} image={result.image} />
-                            ))
-                        }
-                        </Container>
-                        <Container> {sorts[2].suit} 
-                        {
-                            sorts[2].cards.map((result, index) => (
-                                <Card key={index} image={result.image} />
-                            ))
-                        }
-                        </Container>
-                        <Container>{sorts[3].suit}
-                            {
-                                sorts[3].cards.map((result, index) => (
-                                    <Card key={index} image={result.image} />
-                                ))
-                            }
-                        </Container>
-                    </Container2>
-                </> :
-                    <div>
-                        <h1>Home</h1>
-                        <button onClick={handleClick}>Add Card</button>
-                        <img src={img} />
-                        <RealConteiner>
-                            {
-
-                                cardsState.map((card, index) =>
-                                    <div key={index}>
-                                        <Card
-                                            image={card.image}
-                                            value={card.value}
-                                            suit={card.suit}
-                                        />
-                                    </div>
-                                )
-                            }
-                        </RealConteiner>
-                    </div>
+                queens.length === 4 ?
+                    <Results
+                        handleReload={handleReload}
+                        sorts={sorts}
+                        result={cardsState.length}
+                    />
+                    :
+                    <Deck
+                        handleClick={handleClick}
+                        cardsState={cardsState}
+                    />
             }
         </>
     )
 }
-
-const Container2 = styled.div`
-    display: grid;
-    grid-template-columns: repeat(4, 200px);
-    justify-content: center;
-    align-items: center;
-    width: fit-content;
-    background-color: rebeccapurple;
-    /* margin: 20px; */
-`
-
-const RealConteiner = styled.div`
-    display: grid;
-    grid-template-columns: repeat(auto-fit, 200px);
-    align-items: center;
-    /* background-color: rebeccapurple; */
-    margin: 20px;
-`
-
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-`
 
 
 export default Home

@@ -1,18 +1,19 @@
 function getCardSorts(cards){
     const cardSorts = {}
     cards.forEach(card => {
-
-        const { value, suit, images } = card
+        const { value, suit, image } = card
 
         if (!cardSorts[suit]) {
             cardSorts[suit] = []
         }
 
-        cardSorts[suit].push(card = {
+        const cardToPush ={
             value,
-            image : images.png
-        })
-    })
+            image
+        }
+
+        cardSorts[suit].push(cardToPush)
+    } )
 
     const getRealValue = (value) => {
         if (value === "ACE") {
@@ -37,8 +38,10 @@ function getCardSorts(cards){
             cards: cardSorts[suit].sort(sortCards)
         }
     } )
-    console.log(sortedCards, "sortedCards")
+
     return sortedCards
 }
+
+
 
 export default getCardSorts;
