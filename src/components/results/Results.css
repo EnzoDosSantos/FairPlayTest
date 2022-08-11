@@ -1,0 +1,31 @@
+.containerResults__top{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    left: 0;
+    justify-content: space-around;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    background-color: rgb(32, 70, 44);
+    z-index: 1;
+}
+
+.containerResults__top > *{
+    color: #f5f5f5;
+}
+
+.containerResults__bottom{
+    margin-top: 5rem;
+}
+
+
+.MuiGrid2-root > span{
+    font-size: 1.5rem;
+    font-weight: bolder;
+    margin-left: 2rem;
+}
+
+.containerResults > * {
+    color: #f5f5f5
+}
